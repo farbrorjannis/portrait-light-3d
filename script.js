@@ -2,6 +2,8 @@ let scene, camera, renderer, head, light, controls;
 
 function init() {
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x111111);
+
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 5);
 
@@ -9,40 +11,39 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Kontroller för att flytta/rotera huvudet med musen
+    // Gör det möjligt att rotera och zooma huvudet med musen/fingret
     controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    light = new THREE.DirectionalLight(0xffffff, 1.0);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // LADDA RIKTIG MODELL
+    // Laddar en professionell huvudmodell med tydliga anatomiska plan
     const loader = new THREE.OBJLoader();
-    // Vi använder Walt Head som är den bästa gratismodellen för ansiktsplan
     loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj', (obj) => {
         head = obj;
-        updateScene(); // Sätt initial skala och rotation
-        head.position.y = -1.5;
-        
         head.traverse((child) => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({
                     color: 0xcccccc,
-                    flatShading: true, // Detta skapar Asaro-effekten
+                    flatShading: true, // Detta tvingar fram "Asaro-looken"
                     transparent: true,
                     opacity: 0.7
                 });
             }
         });
         scene.add(head);
+        updateScene();
         document.getElementById('loading-overlay').style.display = 'none';
     });
 
-    document.getElementById('lightAngle').addEventListener('input', updateScene);
-    document.getElementById('lightHeight').addEventListener('input', updateScene);
-    document.getElementById('opacity').addEventListener('input', updateScene);
-    document.getElementById('modelScale').addEventListener('input', updateScene);
+    // Lyssnare för alla reglage
+    ['lightAngle', 'lightHeight', 'opacity', 'modelScale'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateScene);
+    });
+
     window.addEventListener('resize', onResize);
     animate();
 }
@@ -56,28 +57,31 @@ function updateScene() {
         const s = document.getElementById('modelScale').value / 1000;
         head.scale.set(s, s, s);
         const opac = document.getElementById('opacity').value / 100;
-        head.traverse((child) => { if (child.isMesh) child.material.opacity = opac; });
+        head.traverse(child => { if (child.isMesh) child.material.opacity = opac; });
     }
 }
 
 function triggerUpload() { document.getElementById('file-input').click(); }
+
 document.getElementById('file-input').onchange = (e) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-        new THREE.TextureLoader().load(event.target.result, (tex) => { scene.background = tex; });
+        new THREE.TextureLoader().load(event.target.result, (tex) => {
+            scene.background = tex;
+        });
     };
     reader.readAsDataURL(e.target.files[0]);
 };
 
 function setRembrandt() {
     document.getElementById('lightAngle').value = 45;
-    document.getElementById('lightHeight').value = 5;
+    document.getElementById('lightHeight').value = 6;
     updateScene();
 }
 
 function downloadImage() {
     const link = document.createElement('a');
-    link.download = 'asaro-study.png';
+    link.download = 'asaro-studie.png';
     link.href = renderer.domElement.toDataURL();
     link.click();
 }
