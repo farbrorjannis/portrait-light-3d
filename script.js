@@ -1,9 +1,10 @@
 let scene, camera, renderer, head, light, controls;
 
+// Länkar till modeller med tydliga plan
 const models = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
-    male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/cerberus/Cerberus.obj', // Exempel, byts mot specifika byster
-    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' // Här kan du lägga till egna länkar
+    old: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
+    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' 
 };
 
 function init() {
@@ -38,18 +39,18 @@ function loadModel(type) {
     if (head) scene.remove(head);
     
     const loader = new THREE.OBJLoader();
-    loader.load(models[type], (obj) => {
+    const url = models[type] || models.standard;
+
+    loader.load(url, (obj) => {
         head = obj;
-        // Justera skala/position för WaltHead specifikt
-        const s = type === 'standard' ? 0.05 : 0.05; 
-        head.scale.set(s, s, s);
+        head.scale.set(0.045, 0.045, 0.045);
         head.position.y = -1.5;
 
         head.traverse(child => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({
-                    color: 0xeeeeee,
-                    flatShading: true, // Behåll planen skarpa
+                    color: 0xcccccc,
+                    flatShading: true, // Detta skapar Asaro-effekten
                     roughness: 0.8
                 });
             }
