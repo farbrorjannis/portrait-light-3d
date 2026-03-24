@@ -3,142 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Portrait Light Lab</title>
-    <style>
-        :root { --primary: #4A90E2; --dark: #2C3E50; --light: #F8F9FA; }
-        body { font-family: sans-serif; background: #eee; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        #lab-container { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 90vw; margin-top: 20px; text-align: center; }
-        canvas { max-width: 100%; max-height: 60vh; background: #ddd; border-radius: 10px; }
-        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        button { border: none; background: var(--light); padding: 12px; border-radius: 50px; cursor: pointer; font-weight: bold; }
-        button.active { background: var(--dark); color: white; }
-        .btn-main { background: var(--primary); color: white; padding: 15px; border-radius: 15px; margin-top: 10px; width: 100%; border:none; cursor:pointer; }
-        #status { font-size: 12px; color: #666; margin-top: 10px; }
-        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:100; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <title>3D Portrait Light Lab | Konstlabbet</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <p id="loading-text">Initializing AI...</p>
+    <p>Loading 3D Models...</p>
 </div>
 
-<div id="lab-container">
-    <canvas id="mainCanvas"></canvas>
-    
-    <div class="controls">
-        <button onclick="changeLight('rembrandt')" id="btn-rembrandt">Rembrandt</button>
-        <button onclick="changeLight('side')" id="btn-side">Side</button>
-        <button onclick="changeLight('top')" id="btn-top">Top</button>
-        <button onclick="changeLight('original')" id="btn-original" class="active">Original</button>
+<div class="app-container">
+    <header>
+        <h1>3D Portrait Light Lab</h1>
+    </header>
+
+    <div class="canvas-area">
+        <canvas id="mainCanvas"></canvas>
+        <div id="drop-zone">Drop image here or click Upload</div>
     </div>
 
-    <button class="btn-main" onclick="document.getElementById('fileInput').click()">Upload Portrait</button>
+    <div class="toolbar">
+        <div class="button-group">
+            <button onclick="updateLight('rembrandt')" id="btn-rembrandt">Rembrandt</button>
+            <button onclick="updateLight('side')" id="id-side">Side Light</button>
+            <button onclick="updateLight('top')" id="id-top">Top Light</button>
+            <button onclick="updateLight('original')" class="active" id="id-original">Original</button>
+        </div>
+
+        <div class="action-group">
+            <button class="btn-toggle" onclick="toggleValues()" id="val-toggle">Value Mode: OFF</button>
+            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Upload Portrait</button>
+            <button class="btn-save" onclick="saveImage()">Download</button>
+        </div>
+    </div>
+
     <input type="file" id="fileInput" hidden accept="image/*">
-    
-    <div id="status">Status: Waiting...</div>
+    <div id="status-bar">Ready</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
-
-<script>
-    const canvas = document.getElementById('mainCanvas');
-    const ctx = canvas.getContext('2d');
-    const status = document.getElementById('status');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    let img = new Image();
-    let currentMode = 'original';
-
-    // 1. Initiera FaceMesh (Snabbare och stabilare än FaceLandmarker för webbläsaren)
-    const faceMesh = new FaceMesh({locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-    }});
-
-    faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-    });
-
-    faceMesh.onResults(onResults);
-
-    // Dölj laddning när motorn är redo
-    status.innerText = "AI Ready. Upload a picture.";
-    loadingOverlay.style.display = 'none';
-
-    document.getElementById('fileInput').onchange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (f) => {
-            img.src = f.target.result;
-            img.onload = () => {
-                renderBase();
-                status.innerText = "Analyzing face...";
-                faceMesh.send({image: img});
-            };
-        };
-        reader.readAsDataURL(file);
-    };
-
-    function renderBase() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-    }
-
-    function onResults(results) {
-        status.innerText = "Face found! Applying 3D light.";
-        loadingOverlay.style.display = 'none';
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-
-        if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0 && currentMode !== 'original') {
-            apply3DShadows(results.multiFaceLandmarks[0], currentMode);
-        }
-    }
-
-    function apply3DShadows(landmarks, mode) {
-        const w = canvas.width;
-        const h = canvas.height;
-
-        // Skapa en skugg-mask
-        ctx.globalCompositeOperation = 'multiply';
-        
-        // Enkel men anatomisk skuggning baserat på näsans position
-        const nose = landmarks[1];
-        let shadowGrad;
-
-        if(mode === 'side') {
-            shadowGrad = ctx.createLinearGradient(0, 0, w, 0);
-            shadowGrad.addColorStop(0, 'rgba(255,255,255,1)');
-            shadowGrad.addColorStop(1, 'rgba(50,50,50,1)');
-        } else if (mode === 'rembrandt') {
-            shadowGrad = ctx.createRadialGradient(nose.x*w, nose.y*h, 0, nose.x*w, nose.y*h, w);
-            shadowGrad.addColorStop(0, 'white');
-            shadowGrad.addColorStop(0.8, '#444');
-        } else if (mode === 'top') {
-            shadowGrad = ctx.createLinearGradient(0, 0, 0, h);
-            shadowGrad.addColorStop(0, 'white');
-            shadowGrad.addColorStop(0.8, '#333');
-        }
-
-        ctx.fillStyle = shadowGrad;
-        ctx.fillRect(0,0,w,h);
-        ctx.globalCompositeOperation = 'source-over';
-    }
-
-    function changeLight(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-' + mode).classList.add('active');
-        if (img.src) faceMesh.send({image: img});
-    }
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
