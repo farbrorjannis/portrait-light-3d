@@ -1,8 +1,7 @@
 let scene, camera, renderer, light, controls;
-let currentModel = null;
+let modelContainer = new THREE.Group(); // En dedikerad behållare för huvudena
 
-// Tre distinkta modeller
-const models = {
+const modelUrls = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
     male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
     female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/ninja/ninjaHead.obj'
@@ -20,15 +19,18 @@ function init() {
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    scene.add(modelContainer); // Lägg till behållaren i scenen
+
+    // Ljusinställning
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Ladda första modellen
-    loadModel('standard');
+    // Ladda startmodellen
+    changeModel('standard');
 
+    // Event listeners
     document.getElementById('lightAngle').addEventListener('input', updateLight);
     document.getElementById('lightHeight').addEventListener('input', updateLight);
     window.addEventListener('resize', onResize);
@@ -36,47 +38,41 @@ function init() {
     animate();
 }
 
-function loadModel(type) {
-    // Rensa scenen på ALLA tidigare modeller innan vi laddar nästa
-    scene.traverse((child) => {
-        if (child.isMesh || child.type === "Group") {
-            scene.remove(child);
-        }
-    });
+function changeModel(type) {
+    // 1. TÖM BEHÅLLAREN HELT (Detta gör de stora sajterna)
+    while(modelContainer.children.length > 0){ 
+        modelContainer.remove(modelContainer.children[0]); 
+    }
 
-    const loader = new THREE.OBJLoader();
-    // Lägg till ett unikt nummer i slutet av URL:en för att tvinga webbläsaren att ladda om
-    const url = models[type] + "?nocache=" + Date.now();
+    // 2. LADDA NY MODELL
+    const loader = new OBJLoader();
+    loader.load(modelUrls[type], (obj) => {
+        // Justera skala och position unikt för varje modell
+        if(type === 'male') { obj.scale.set(0.005, 0.005, 0.005); obj.position.y = -0.5; }
+        else { obj.scale.set(0.05, 0.05, 0.05); obj.position.y = -1.5; }
 
-    loader.load(url, (obj) => {
-        currentModel = obj;
-        
-        // Specifika inställningar för att de ska synas rätt
-        if (type === 'male') {
-            currentModel.scale.set(0.005, 0.005, 0.005);
-            currentModel.position.y = -0.8;
-        } else {
-            currentModel.scale.set(0.05, 0.05, 0.05);
-            currentModel.position.y = -1.5;
-        }
-
-        currentModel.traverse(child => {
+        obj.traverse(child => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({ 
                     color: 0xcccccc, 
-                    flatShading: true 
+                    flatShading: true // Viktigt för Asaro-looken
                 });
             }
         });
-        
-        scene.add(currentModel);
+        modelContainer.add(obj);
     });
 }
 
 function updateLight() {
-    const a = document.getElementById('lightAngle').value * (Math.PI / 180);
+    const angle = document.getElementById('lightAngle').value * (Math.PI / 180);
     const h = document.getElementById('lightHeight').value;
-    light.position.set(Math.cos(a) * 8, h, Math.sin(a) * 8);
+    light.position.set(Math.cos(angle) * 8, h, Math.sin(angle) * 8);
+}
+
+function resetLighting() {
+    document.getElementById('lightAngle').value = 45;
+    document.getElementById('lightHeight').value = 5;
+    updateLight();
 }
 
 function onResize() {
@@ -86,15 +82,9 @@ function onResize() {
     renderer.setSize(container.clientWidth, container.clientHeight);
 }
 
-function setRembrandt() {
-    document.getElementById('lightAngle').value = 45;
-    document.getElementById('lightHeight').value = 5;
-    updateLight();
-}
-
 function animate() {
     requestAnimationFrame(animate);
-    if(controls) controls.update();
+    controls.update();
     renderer.render(scene, camera);
 }
 
