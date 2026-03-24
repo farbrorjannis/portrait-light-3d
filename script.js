@@ -2,32 +2,38 @@ let scene, camera, renderer, head, light, controls;
 
 function init() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight * 0.7), 0.1, 1000);
+    
+    // Kamera anpassad efter fönsterstorlek
+    const container = document.getElementById('canvas-container');
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(0, 0, 5);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
 
+    // Gör det möjligt att dra och rotera huvudet
     controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
+    // Ljusinställningar
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
+    // Laddar den detaljerade modellen (Walt Head)
     const loader = new THREE.OBJLoader();
-    // Vi använder WaltHead som är en stabil och detaljerad modell
     loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj', (obj) => {
         head = obj;
-        head.scale.set(0.04, 0.04, 0.04);
+        head.scale.set(0.045, 0.045, 0.045);
         head.position.y = -1.5;
         
         head.traverse((child) => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({
                     color: 0xcccccc,
-                    flatShading: true,
+                    flatShading: true, // Detta skapar de tydliga planen (Asaro)
                     transparent: true,
                     opacity: 0.8
                 });
@@ -36,6 +42,7 @@ function init() {
         scene.add(head);
     });
 
+    // Lyssnare för reglage
     document.getElementById('lightAngle').addEventListener('input', updateScene);
     document.getElementById('lightHeight').addEventListener('input', updateScene);
     document.getElementById('opacity').addEventListener('input', updateScene);
@@ -69,7 +76,7 @@ document.getElementById('file-input').onchange = (e) => {
 
 function setRembrandt() {
     document.getElementById('lightAngle').value = 45;
-    document.getElementById('lightHeight').value = 6;
+    document.getElementById('lightHeight').value = 5;
     updateScene();
 }
 
@@ -81,14 +88,15 @@ function downloadImage() {
 }
 
 function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const container = document.getElementById('canvas-container');
+    camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
 }
 
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
+    if(controls) controls.update();
     renderer.render(scene, camera);
 }
 
