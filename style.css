@@ -1,0 +1,95 @@
+:root {
+    --accent: #4A90E2;
+    --bg: #f4f7f9;
+    --panel: #ffffff;
+    --text: #2c3e50;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.canvas-area {
+    position: relative;
+    width: 100%;
+    background: #ddd;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+}
+
+canvas {
+    max-width: 100%;
+    max-height: 70vh;
+    display: block;
+}
+
+.toolbar {
+    width: 100%;
+    margin-top: 20px;
+    background: var(--panel);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+button {
+    border: none;
+    padding: 12px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+}
+
+.button-group button { background: #eee; }
+.button-group button.active { background: var(--text); color: white; }
+
+.action-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-primary { background: var(--accent); color: white; flex: 2; }
+.btn-toggle { background: #6c757d; color: white; flex: 1; }
+.btn-save { background: #28a745; color: white; flex: 1; }
+
+#loading-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: white; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 999;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--accent);
+    border-radius: 50%; width: 40px; height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
