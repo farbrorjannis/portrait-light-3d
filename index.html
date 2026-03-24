@@ -8,25 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
-<div id="loading-overlay">
-    <div class="spinner"></div>
-    <p>Initializing 3D Studio...</p>
-</div>
-
 <div class="app-container">
     <div id="canvas-container"></div>
-
     <div class="ui-overlay">
         <div class="controls">
-            <div class="group">
-                <label>Light Direction</label>
-                <input type="range" id="lightAngle" min="0" max="360" value="45">
-            </div>
-            <div class="group">
-                <label>Light Height</label>
-                <input type="range" id="lightHeight" min="-5" max="10" value="5">
-            </div>
+            <div class="group"><label>Light Direction</label><input type="range" id="lightAngle" min="0" max="360" value="45"></div>
+            <div class="group"><label>Light Height</label><input type="range" id="lightHeight" min="-5" max="10" value="5"></div>
             <div class="buttons">
                 <button onclick="triggerUpload()" class="btn-main">Upload Reference</button>
                 <button onclick="setRembrandt()" class="btn-sub">Rembrandt</button>
@@ -36,7 +23,6 @@
     </div>
     <input type="file" id="file-input" hidden accept="image/*">
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>
