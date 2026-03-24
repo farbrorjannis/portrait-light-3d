@@ -3,43 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Portrait Light Lab | Konstlabbet</title>
+    <title>3D Portrait Lab - Konstlabbet</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <p>Loading 3D Models...</p>
+    <p id="status-text">Waking up AI...</p>
 </div>
 
 <div class="app-container">
-    <header>
-        <h1>3D Portrait Light Lab</h1>
-    </header>
-
-    <div class="canvas-area">
-        <canvas id="mainCanvas"></canvas>
-        <div id="drop-zone">Drop image here or click Upload</div>
-    </div>
+    <canvas id="mainCanvas"></canvas>
 
     <div class="toolbar">
-        <div class="button-group">
-            <button onclick="updateLight('rembrandt')" id="btn-rembrandt">Rembrandt</button>
-            <button onclick="updateLight('side')" id="id-side">Side Light</button>
-            <button onclick="updateLight('top')" id="id-top">Top Light</button>
-            <button onclick="updateLight('original')" class="active" id="id-original">Original</button>
+        <div class="mode-buttons">
+            <button onclick="setMode('rembrandt')" id="btn-rembrandt">Rembrandt</button>
+            <button onclick="setMode('side')" id="btn-side">Side</button>
+            <button onclick="setMode('top')" id="btn-top">Top</button>
+            <button onclick="setMode('original')" class="active" id="btn-original">Original</button>
         </div>
 
-        <div class="action-group">
-            <button class="btn-toggle" onclick="toggleValues()" id="val-toggle">Value Mode: OFF</button>
-            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Upload Portrait</button>
-            <button class="btn-save" onclick="saveImage()">Download</button>
+        <div class="tool-buttons">
+            <button class="btn-val" onclick="toggleValues()" id="btn-val">Values: OFF</button>
+            <button class="btn-upload" onclick="document.getElementById('file-input').click()">Upload Portrait</button>
+            <button class="btn-download" onclick="downloadImage()">Download</button>
         </div>
     </div>
-
-    <input type="file" id="fileInput" hidden accept="image/*">
-    <div id="status-bar">Ready</div>
+    <input type="file" id="file-input" hidden accept="image/*">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
