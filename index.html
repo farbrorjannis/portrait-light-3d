@@ -3,51 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asaro Portrait Lab | Konstlabbet</title>
+    <title>Asaro Portrait Lab</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+    <div class="app-container">
+        <div id="canvas-container"></div>
 
-<div id="loading-overlay">
-    <div class="spinner"></div>
-    <p>Laddar Asaro-byst...</p>
-</div>
-
-<div class="app-container">
-    <div id="canvas-container"></div>
-
-    <div class="ui-overlay">
-        <div class="controls-grid">
-            <div class="group">
-                <label>Ljusets riktning</label>
-                <input type="range" id="lightAngle" min="0" max="360" value="45">
+        <div class="ui-panel">
+            <div class="controls-row">
+                <div class="control-group">
+                    <label>Ljusets vinkel</label>
+                    <input type="range" id="lightAngle" min="0" max="360" value="45">
+                </div>
+                <div class="control-group">
+                    <label>Ljusets höjd</label>
+                    <input type="range" id="lightHeight" min="-5" max="10" value="5">
+                </div>
+                <div class="control-group">
+                    <label>Genomskinlighet</label>
+                    <input type="range" id="opacity" min="0" max="100" value="80">
+                </div>
             </div>
-            <div class="group">
-                <label>Ljusets höjd</label>
-                <input type="range" id="lightHeight" min="-5" max="10" value="5">
-            </div>
-            <div class="group">
-                <label>Genomskinlighet (Modell)</label>
-                <input type="range" id="opacity" min="0" max="100" value="70">
-            </div>
-            <div class="group">
-                <label>Modellens storlek</label>
-                <input type="range" id="modelScale" min="10" max="100" value="40">
+            
+            <div class="button-row">
+                <button onclick="triggerUpload()" class="btn-main">Ladda upp bild</button>
+                <button onclick="setRembrandt()" class="btn-sub">Rembrandt-ljus</button>
+                <button onclick="downloadImage()" class="btn-save">Spara bild</button>
             </div>
         </div>
-
-        <div class="button-row">
-            <button onclick="triggerUpload()" class="btn-main">Ladda upp foto</button>
-            <button onclick="setRembrandt()" class="btn-sub">Rembrandt-ljus</button>
-            <button onclick="downloadImage()" class="btn-save">Spara bild</button>
-        </div>
+        <input type="file" id="file-input" hidden accept="image/*">
     </div>
-    <input type="file" id="file-input" hidden accept="image/*">
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
