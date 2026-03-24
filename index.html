@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asaro Portrait Lab</title>
+    <title>Asaro Reference Studio</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
@@ -16,26 +16,22 @@
         <div class="ui-panel">
             <div class="controls-row">
                 <div class="control-group">
-                    <label>Ljusets vinkel</label>
+                    <label>Ljusvinkel</label>
                     <input type="range" id="lightAngle" min="0" max="360" value="45">
                 </div>
                 <div class="control-group">
-                    <label>Ljusets höjd</label>
+                    <label>Ljushöjd</label>
                     <input type="range" id="lightHeight" min="-5" max="10" value="5">
-                </div>
-                <div class="control-group">
-                    <label>Genomskinlighet</label>
-                    <input type="range" id="opacity" min="0" max="100" value="80">
                 </div>
             </div>
             
             <div class="button-row">
-                <button onclick="triggerUpload()" class="btn-main">Ladda upp bild</button>
+                <button onclick="loadModel('standard')" class="btn-model">Standard Plan</button>
+                <button onclick="loadModel('male')" class="btn-model">Man (Karaktär)</button>
+                <button onclick="loadModel('female')" class="btn-model">Kvinna (Mjukare)</button>
                 <button onclick="setRembrandt()" class="btn-sub">Rembrandt-ljus</button>
-                <button onclick="downloadImage()" class="btn-save">Spara bild</button>
             </div>
         </div>
-        <input type="file" id="file-input" hidden accept="image/*">
     </div>
     <script src="script.js"></script>
 </body>
