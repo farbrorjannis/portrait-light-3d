@@ -1,47 +1,52 @@
-let scene, camera, renderer, head, light, bgMesh;
+let scene, camera, renderer, head, light;
 
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    camera.position.set(0, 0, 5);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Belysning
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-    light = new THREE.DirectionalLight(0xffffff, 1.0);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Skapa ett facetterat huvud (Asaro-stil) med geometri-manipulering
-    const geo = new THREE.IcosahedronGeometry(1.5, 1);
-    const pos = geo.attributes.position;
+    // SKAPAR ETT ANSIKTE MED PLAN (ASARO-STIL)
+    const geometry = new THREE.ConeGeometry(1.2, 2.5, 6); // Basform för ett avlångt ansikte
+    geometry.rotateX(Math.PI); // Vänd rätt
+    
+    // Vi manipulerar punkterna för att skapa näsa och kinder (Planaritet)
+    const pos = geometry.attributes.position;
     for (let i = 0; i < pos.count; i++) {
         let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-        if (z > 0.8) { pos.setZ(i, z * 1.3); pos.setY(i, y * 1.1); } // Näsa/ansikte
-        if (z < 0) pos.setZ(i, z * 0.5); // Platta till baksidan
+        // Skjut fram "näsan" i mitten
+        if (Math.abs(x) < 0.2 && y > 0) pos.setZ(i, z + 0.6);
+        // Tryck in "ögonhålorna"
+        if (Math.abs(x) > 0.4 && y > 0.5) pos.setZ(i, z - 0.3);
     }
     
-    const mat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, flatShading: true });
-    head = new THREE.Mesh(geo, mat);
+    const material = new THREE.MeshStandardMaterial({ 
+        color: 0xcccccc, 
+        flatShading: true, // Detta skapar de skarpa valörerna för målaren
+        roughness: 0.8 
+    });
+    
+    head = new THREE.Mesh(geometry, material);
     scene.add(head);
 
-    // Setup events
     document.getElementById('lightAngle').addEventListener('input', updateLight);
     document.getElementById('lightHeight').addEventListener('input', updateLight);
-    
     window.addEventListener('resize', onResize);
-    document.getElementById('loading-overlay').style.display = 'none';
-    
     animate();
 }
 
 function updateLight() {
     const angle = document.getElementById('lightAngle').value * (Math.PI / 180);
     const h = document.getElementById('lightHeight').value;
-    light.position.set(Math.cos(angle) * 5, h, Math.sin(angle) * 5);
+    light.position.set(Math.cos(angle) * 7, h, Math.sin(angle) * 7);
 }
 
 function triggerUpload() { document.getElementById('file-input').click(); }
@@ -49,27 +54,23 @@ function triggerUpload() { document.getElementById('file-input').click(); }
 document.getElementById('file-input').onchange = (e) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-        const loader = new THREE.TextureLoader();
-        loader.load(event.target.result, (tex) => {
+        new THREE.TextureLoader().load(event.target.result, (tex) => {
             scene.background = tex;
-            // Justera för att inte sträcka bilden
-            const aspect = tex.image.width / tex.image.height;
-            scene.background.matrixAutoUpdate = false;
         });
     };
     reader.readAsDataURL(e.target.files[0]);
 };
 
 function setRembrandt() {
-    document.getElementById('lightAngle').value = 40;
-    document.getElementById('lightHeight').value = 4;
+    document.getElementById('lightAngle').value = 45;
+    document.getElementById('lightHeight').value = 6;
     updateLight();
-    head.rotation.y = 0.4;
+    head.rotation.y = 0.5;
 }
 
 function downloadImage() {
     const link = document.createElement('a');
-    link.download = 'portrait-study.png';
+    link.download = 'portrait-valorer.png';
     link.href = renderer.domElement.toDataURL();
     link.click();
 }
