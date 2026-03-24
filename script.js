@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
 const canvas = document.getElementById('mainCanvas');
 const ctx = canvas.getContext('2d');
 const statusText = document.getElementById('status-text');
@@ -102,3 +103,5 @@ function downloadImage() {
     a.href = canvas.toDataURL();
     a.click();
 }
+  console.log("Nu är sidan redo och knapparna finns!");
+});
