@@ -1,83 +1,97 @@
-window.addEventListener('load', async () => {
-    const canvas = document.getElementById('mainCanvas');
-    const ctx = canvas.getContext('2d');
-    const statusText = document.getElementById('status-text');
-    const overlay = document.getElementById('loading-overlay');
-    const fileInput = document.getElementById('file-input');
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    let img = new Image();
-    let faceData = null;
-    let currentMode = 'original';
-    let valueMode = false;
+let scene, camera, renderer, head, directionalLight, controls;
+let isWireframe = false;
 
-    // --- 1. SÄKER UPLOAD-FUNKTION ---
-    // Denna del tvingar knappen att lyssna på klick
-    window.triggerUpload = () => {
-        console.log("Upload triggered manually");
-        fileInput.click();
-    };
+init();
 
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+function init() {
+    // 1. Scene Setup
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
 
-        const reader = new FileReader();
-        reader.onload = (f) => {
-            img = new Image();
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                render();
-                // Kör AI-analys om den är laddad
-                if (typeof faceMesh !== 'undefined') {
-                    faceMesh.send({ image: img });
-                }
-            };
-            img.src = f.target.result;
-        };
-        reader.readAsDataURL(file);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 5);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // 2. Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Soft base light
+    scene.add(ambientLight);
+
+    directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    // 3. Create a "Plane Head" (Asaro-style simplified)
+    const geometry = new THREE.IcosahedronGeometry(1.5, 1); // Low poly for planes
+    const material = new THREE.MeshStandardMaterial({ 
+        color: 0xcccccc, 
+        flatShading: true, // Crucial for watercolor painters to see planes!
+        roughness: 0.8
     });
+    head = new THREE.Mesh(geometry, material);
+    head.receiveShadow = true;
+    head.castShadow = true;
+    scene.add(head);
 
-    // --- 2. AI INITIERING ---
-    const faceMesh = new FaceMesh({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
+    // 4. Controls
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-    faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5
-    });
+    // 5. Events
+    window.addEventListener('resize', onWindowResize);
+    document.getElementById('lightPosX').addEventListener('input', updateLight);
+    document.getElementById('lightPosY').addEventListener('input', updateLight);
 
-    faceMesh.onResults(results => {
-        faceData = results.multiFaceLandmarks ? results.multiFaceLandmarks[0] : null;
-        render();
-        if (overlay) overlay.style.display = 'none';
-    });
+    // Hide Loading
+    setTimeout(() => {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }, 1000);
 
-    try {
-        await faceMesh.initialize();
-        statusText.innerText = "AI Engine Ready. Please upload an image.";
-    } catch (e) {
-        statusText.innerText = "AI failed to load. You can still use 'Value Mode'.";
-        console.error(e);
+    animate();
+}
+
+function updateLight() {
+    const x = document.getElementById('lightPosX').value;
+    const y = document.getElementById('lightPosY').value;
+    directionalLight.position.set(x, y, 5);
+}
+
+window.setPreset = (type) => {
+    if(type === 'rembrandt') {
+        document.getElementById('lightPosX').value = 4;
+        document.getElementById('lightPosY').value = 4;
+        directionalLight.position.set(4, 4, 5);
+        head.rotation.y = 0.5;
     }
+};
 
-    // --- 3. ÖVRIGA FUNKTIONER ---
-    window.setMode = (m) => {
-        currentMode = m;
-        render();
-    };
+window.toggleWireframe = () => {
+    isWireframe = !isWireframe;
+    head.material.wireframe = isWireframe;
+    document.getElementById('wireframeBtn').innerText = isWireframe ? "Show Solid" : "Show Planes";
+};
 
-    window.toggleValues = () => {
-        valueMode = !valueMode;
-        render();
-    };
+window.resetCamera = () => {
+    camera.position.set(0, 0, 5);
+    head.rotation.set(0, 0, 0);
+    controls.reset();
+};
 
-    function render() {
-        if (!img.src) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        // ... (Shadow och Value filter kod som tidigare)
-    }
-});
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
