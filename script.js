@@ -1,9 +1,10 @@
 let scene, camera, renderer, head, light, controls;
 
+// Tre tydliga modeller för anatomi-studier
 const models = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
     male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
-    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj'
+    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' // Använder Walt som bas för stabilitet
 };
 
 function init() {
@@ -14,15 +15,19 @@ function init() {
     camera.position.set(0, 0, 5);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+    controls.enableDamping = true;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
+    // Starta med standardmodellen
     loadModel('standard');
 
     document.getElementById('lightAngle').addEventListener('input', updateLight);
@@ -30,28 +35,33 @@ function init() {
     window.addEventListener('resize', onResize);
     
     animate();
-    setTimeout(onResize, 200); // Tvingar igång bilden efter laddning
 }
 
 function loadModel(type) {
+    console.log("Laddar modell:", type); // För felsökning
     if (head) scene.remove(head);
-    new THREE.OBJLoader().load(models[type], (obj) => {
+    
+    const loader = new THREE.OBJLoader();
+    loader.load(models[type], (obj) => {
         head = obj;
-        head.scale.set(0.045, 0.045, 0.045);
-        head.position.y = -1.5;
+        head.scale.set(0.05, 0.05, 0.05);
+        head.position.y = -1.8;
         head.traverse(child => {
             if (child.isMesh) {
-                child.material = new THREE.MeshStandardMaterial({ color: 0xcccccc, flatShading: true });
+                child.material = new THREE.MeshStandardMaterial({ 
+                    color: 0xdddddd, 
+                    flatShading: true 
+                });
             }
         });
         scene.add(head);
-    });
+    }, undefined, (error) => console.error("Fel vid laddning:", error));
 }
 
 function updateLight() {
     const a = document.getElementById('lightAngle').value * (Math.PI / 180);
     const h = document.getElementById('lightHeight').value;
-    light.position.set(Math.cos(a) * 7, h, Math.sin(a) * 7);
+    light.position.set(Math.cos(a) * 8, h, Math.sin(a) * 8);
 }
 
 function onResize() {
@@ -69,8 +79,9 @@ function setRembrandt() {
 
 function animate() {
     requestAnimationFrame(animate);
-    if(controls) controls.update();
+    controls.update();
     renderer.render(scene, camera);
 }
 
+// Starta allt
 init();
