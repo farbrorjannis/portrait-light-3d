@@ -1,10 +1,10 @@
 let scene, camera, renderer, head, light, controls;
 
-// Tre tydliga modeller för anatomi-studier
+// Direkta länkar till stabila modeller
 const models = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
     male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
-    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' // Använder Walt som bas för stabilitet
+    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' 
 };
 
 function init() {
@@ -15,7 +15,6 @@ function init() {
     camera.position.set(0, 0, 5);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
@@ -27,7 +26,7 @@ function init() {
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Starta med standardmodellen
+    // Ladda första modellen direkt
     loadModel('standard');
 
     document.getElementById('lightAngle').addEventListener('input', updateLight);
@@ -38,24 +37,38 @@ function init() {
 }
 
 function loadModel(type) {
-    console.log("Laddar modell:", type); // För felsökning
-    if (head) scene.remove(head);
-    
+    // 1. TA BORT GAMMAL MODELL HELT
+    if (head) {
+        scene.remove(head);
+        head.traverse(node => {
+            if (node.isMesh) {
+                node.geometry.dispose();
+                node.material.dispose();
+            }
+        });
+        head = null;
+    }
+
+    // 2. LADDA NY MODELL
     const loader = new THREE.OBJLoader();
     loader.load(models[type], (obj) => {
         head = obj;
-        head.scale.set(0.05, 0.05, 0.05);
-        head.position.y = -1.8;
+        
+        // Anpassa storlek baserat på vilken modell det är
+        let s = (type === 'male') ? 0.005 : 0.05; 
+        head.scale.set(s, s, s);
+        head.position.y = (type === 'male') ? -1.0 : -1.8;
+
         head.traverse(child => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({ 
-                    color: 0xdddddd, 
+                    color: 0xcccccc, 
                     flatShading: true 
                 });
             }
         });
         scene.add(head);
-    }, undefined, (error) => console.error("Fel vid laddning:", error));
+    });
 }
 
 function updateLight() {
@@ -79,9 +92,8 @@ function setRembrandt() {
 
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
+    if(controls) controls.update();
     renderer.render(scene, camera);
 }
 
-// Starta allt
 init();
