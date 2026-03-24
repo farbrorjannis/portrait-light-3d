@@ -10,46 +10,56 @@
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <p id="status-text">Loading 3D Engine...</p>
+    <p id="status-text">Waking up the 3D Head...</p>
     <div class="security-note">
-        Note: If loading takes too long, please check your connection or browser security settings (WASM support).
+        Note: If loading takes too long, check browser security or VPN (WASM support needed).
     </div>
 </div>
 
 <div class="app-container">
     <header>
-        <h1>3D Portrait Planes</h1>
-        <p>Drag the 3D head to rotate. Move the light to study shadows.</p>
+        <h1>3D Portrait Planes Lab</h1>
+        <p>A reference tool for understanding values and forms in painting.</p>
     </header>
 
     <div id="canvas-container">
         </div>
 
     <div class="controls-panel">
-        <div class="control-group">
-            <label>Light Position (Horizontal)</label>
-            <input type="range" id="lightPosX" min="-10" max="10" step="0.1" value="5">
+        <div class="control-grid">
+            <div class="control-group">
+                <label>Main Light (Left-Right)</label>
+                <input type="range" id="light1X" min="-10" max="10" step="0.1" value="5">
+            </div>
+            <div class="control-group">
+                <label>Main Light (Up-Down)</label>
+                <input type="range" id="light1Y" min="-10" max="10" step="0.1" value="5">
+            </div>
+            <div class="control-group">
+                <label>Secondary Light (Position)</label>
+                <input type="range" id="light2Angle" min="0" max="360" step="1" value="200">
+            </div>
+            <div class="control-group">
+                <label>Head Details (Simplification)</label>
+                <input type="range" id="planeDensity" min="1" max="5" step="1" value="2">
+            </div>
         </div>
-        <div class="control-group">
-            <label>Light Height (Vertical)</label>
-            <input type="range" id="lightPosY" min="-10" max="10" step="0.1" value="5">
-        </div>
+
         <div class="button-row">
-            <button onclick="resetCamera()" class="btn-secondary">Reset View</button>
-            <button onclick="toggleWireframe()" id="wireframeBtn">Show Planes</button>
+            <button onclick="document.getElementById('file-input').click()" class="btn-primary">Upload Portrait Ref</button>
             <button onclick="setPreset('rembrandt')" class="btn-accent">Rembrandt</button>
+            <button onclick="setPreset('side')" class="btn-accent">Side Light</button>
+            <button onclick="downloadSetup()" class="btn-save">Download Setup</button>
         </div>
     </div>
+    
+    <input type="file" id="file-input" hidden accept="image/*">
+    <div id="status-bar">3D Ready. Drag to rotate, shift+drag to zoom. Upload background ref.</div>
 </div>
 
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-    }
-</script>
-<script type="module" src="script.js"></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/jsm/geometries/TeapotGeometry.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
