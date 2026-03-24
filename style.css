@@ -1,20 +1,43 @@
-body, html { margin: 0; padding: 0; height: 100%; background: #111; font-family: sans-serif; overflow: hidden; color: white; }
-.app-container { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; }
-#canvas-container { flex-grow: 1; width: 100%; height: 100%; cursor: move; }
+body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
+.app-container { display: flex; flex-direction: column; height: 100vh; }
+#canvas-container { flex-grow: 1; width: 100%; position: relative; }
 
-.ui-overlay { background: rgba(15, 15, 15, 0.9); padding: 20px; border-top: 1px solid #333; }
-.controls-grid { max-width: 900px; margin: 0 auto 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+.ui-panel { 
+    background: #1a1a1a; 
+    padding: 20px; 
+    border-top: 2px solid #333;
+    z-index: 10;
+}
 
-.group { display: flex; flex-direction: column; gap: 8px; }
-label { color: #aaa; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
-input[type=range] { width: 100%; cursor: pointer; accent-color: #4A90E2; }
+.controls-row { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 20px; 
+    max-width: 1000px; 
+    margin: 0 auto 15px;
+}
 
-.button-row { max-width: 900px; margin: 0 auto; display: flex; gap: 10px; }
-button { flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-.btn-main { background: #4A90E2; color: white; }
-.btn-sub { background: #333; color: white; }
-.btn-save { background: #28a745; color: white; }
+.control-group { display: flex; flex-direction: column; gap: 5px; }
+label { color: #888; font-size: 12px; text-transform: uppercase; }
+input[type=range] { width: 100%; cursor: pointer; }
 
-#loading-overlay { position: fixed; inset: 0; background: #111; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.spinner { border: 3px solid #222; border-top: 3px solid #4A90E2; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-@keyframes spin { 100% { transform: rotate(360deg); } }
+.button-row { 
+    display: flex; 
+    gap: 10px; 
+    max-width: 1000px; 
+    margin: 0 auto;
+}
+
+button { 
+    flex: 1; 
+    padding: 12px; 
+    border: none; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: white;
+}
+
+.btn-main { background: #4A90E2; }
+.btn-sub { background: #444; }
+.btn-save { background: #28a745; }
