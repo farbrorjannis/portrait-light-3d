@@ -1,10 +1,11 @@
-let scene, camera, renderer, head, light, controls;
+let scene, camera, renderer, light, controls;
+let currentModel = null;
 
-// Tre HELT olika länkar för att tvinga fram ett byte
+// Tre distinkta modeller
 const models = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
     male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
-    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/ninja/ninjaHead.obj' 
+    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/ninja/ninjaHead.obj'
 };
 
 function init() {
@@ -20,12 +21,12 @@ function init() {
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     
-    // Belysning
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
+    // Ladda första modellen
     loadModel('standard');
 
     document.getElementById('lightAngle').addEventListener('input', updateLight);
@@ -36,33 +37,30 @@ function init() {
 }
 
 function loadModel(type) {
-    // 1. RENSA SCENEN AGGRESSIVT
-    scene.children.forEach(child => {
-        if (child.type === "Group" || child.type === "Mesh") {
+    // Rensa scenen på ALLA tidigare modeller innan vi laddar nästa
+    scene.traverse((child) => {
+        if (child.isMesh || child.type === "Group") {
             scene.remove(child);
         }
     });
 
-    // 2. LADDA NY MODELL MED TIDSSTÄMPEL (förhindrar cache-problem)
     const loader = new THREE.OBJLoader();
-    const url = models[type] + "?v=" + Math.random(); 
+    // Lägg till ett unikt nummer i slutet av URL:en för att tvinga webbläsaren att ladda om
+    const url = models[type] + "?nocache=" + Date.now();
 
     loader.load(url, (obj) => {
-        head = obj;
+        currentModel = obj;
         
-        // Anpassa storlek/position unikt för varje knapp
+        // Specifika inställningar för att de ska synas rätt
         if (type === 'male') {
-            head.scale.set(0.005, 0.005, 0.005);
-            head.position.y = -0.5;
-        } else if (type === 'female') {
-            head.scale.set(0.05, 0.05, 0.05);
-            head.position.y = -1.5;
+            currentModel.scale.set(0.005, 0.005, 0.005);
+            currentModel.position.y = -0.8;
         } else {
-            head.scale.set(0.05, 0.05, 0.05);
-            head.position.y = -1.8;
+            currentModel.scale.set(0.05, 0.05, 0.05);
+            currentModel.position.y = -1.5;
         }
 
-        head.traverse(child => {
+        currentModel.traverse(child => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({ 
                     color: 0xcccccc, 
@@ -70,7 +68,8 @@ function loadModel(type) {
                 });
             }
         });
-        scene.add(head);
+        
+        scene.add(currentModel);
     });
 }
 
