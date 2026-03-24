@@ -1,2 +1,55 @@
-<button class="btn-upload" onclick="triggerUpload()">Upload Portrait</button>
-<button class="btn-skip" onclick="document.getElementById('loading-overlay').style.display='none'">Skip AI / Use Value Mode</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Plane Light Lab | Konstlabbet</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <p id="status-text">Loading 3D Engine...</p>
+    <div class="security-note">
+        Note: If loading takes too long, please check your connection or browser security settings (WASM support).
+    </div>
+</div>
+
+<div class="app-container">
+    <header>
+        <h1>3D Portrait Planes</h1>
+        <p>Drag the 3D head to rotate. Move the light to study shadows.</p>
+    </header>
+
+    <div id="canvas-container">
+        </div>
+
+    <div class="controls-panel">
+        <div class="control-group">
+            <label>Light Position (Horizontal)</label>
+            <input type="range" id="lightPosX" min="-10" max="10" step="0.1" value="5">
+        </div>
+        <div class="control-group">
+            <label>Light Height (Vertical)</label>
+            <input type="range" id="lightPosY" min="-10" max="10" step="0.1" value="5">
+        </div>
+        <div class="button-row">
+            <button onclick="resetCamera()" class="btn-secondary">Reset View</button>
+            <button onclick="toggleWireframe()" id="wireframeBtn">Show Planes</button>
+            <button onclick="setPreset('rembrandt')" class="btn-accent">Rembrandt</button>
+        </div>
+    </div>
+</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+<script type="module" src="script.js"></script>
+</body>
+</html>
