@@ -1,10 +1,10 @@
 let scene, camera, renderer, head, light, controls;
 
-// Direkta länkar till stabila modeller
+// Tre HELT olika länkar för att tvinga fram ett byte
 const models = {
     standard: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj',
     male: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/leeperryman/head.obj',
-    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj' 
+    female: 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/ninja/ninjaHead.obj' 
 };
 
 function init() {
@@ -19,14 +19,13 @@ function init() {
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
+    
+    // Belysning
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Ladda första modellen direkt
     loadModel('standard');
 
     document.getElementById('lightAngle').addEventListener('input', updateLight);
@@ -37,27 +36,31 @@ function init() {
 }
 
 function loadModel(type) {
-    // 1. TA BORT GAMMAL MODELL HELT
-    if (head) {
-        scene.remove(head);
-        head.traverse(node => {
-            if (node.isMesh) {
-                node.geometry.dispose();
-                node.material.dispose();
-            }
-        });
-        head = null;
-    }
+    // 1. RENSA SCENEN AGGRESSIVT
+    scene.children.forEach(child => {
+        if (child.type === "Group" || child.type === "Mesh") {
+            scene.remove(child);
+        }
+    });
 
-    // 2. LADDA NY MODELL
+    // 2. LADDA NY MODELL MED TIDSSTÄMPEL (förhindrar cache-problem)
     const loader = new THREE.OBJLoader();
-    loader.load(models[type], (obj) => {
+    const url = models[type] + "?v=" + Math.random(); 
+
+    loader.load(url, (obj) => {
         head = obj;
         
-        // Anpassa storlek baserat på vilken modell det är
-        let s = (type === 'male') ? 0.005 : 0.05; 
-        head.scale.set(s, s, s);
-        head.position.y = (type === 'male') ? -1.0 : -1.8;
+        // Anpassa storlek/position unikt för varje knapp
+        if (type === 'male') {
+            head.scale.set(0.005, 0.005, 0.005);
+            head.position.y = -0.5;
+        } else if (type === 'female') {
+            head.scale.set(0.05, 0.05, 0.05);
+            head.position.y = -1.5;
+        } else {
+            head.scale.set(0.05, 0.05, 0.05);
+            head.position.y = -1.8;
+        }
 
         head.traverse(child => {
             if (child.isMesh) {
