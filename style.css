@@ -1,27 +1,38 @@
-body, html { margin: 0; padding: 0; height: 100%; background: #111; font-family: sans-serif; overflow: hidden; }
-.app-container { position: relative; width: 100%; height: 100vh; }
-#canvas-container { width: 100%; height: 100%; }
+body, html { margin: 0; padding: 0; height: 100%; background: #111; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
+.app-container { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; }
+#canvas-container { flex-grow: 1; width: 100%; height: 100%; }
 
 .ui-overlay {
-    position: absolute; bottom: 0; left: 0; width: 100%;
-    background: rgba(0,0,0,0.85); padding: 20px; box-sizing: border-box;
-    border-top: 1px solid #333;
+    background: rgba(20, 20, 20, 0.95);
+    padding: 20px;
+    border-top: 1px solid #444;
 }
 
-.controls { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-.group { display: flex; flex-direction: column; gap: 5px; }
-label { color: #aaa; font-size: 12px; text-transform: uppercase; }
-input[type=range] { width: 100%; cursor: pointer; }
+.controls-grid {
+    max-width: 800px;
+    margin: 0 auto 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
 
-.buttons { display: flex; gap: 10px; }
-button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+@media (max-width: 600px) { .controls-grid { grid-template-columns: 1fr; } }
+
+.group { display: flex; flex-direction: column; gap: 5px; }
+label { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+input[type=range] { width: 100%; cursor: pointer; accent-color: #4A90E2; }
+
+.button-row { max-width: 800px; margin: 0 auto; display: flex; gap: 10px; }
+button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
+
 .btn-main { background: #4A90E2; color: white; }
 .btn-sub { background: #444; color: white; }
 .btn-save { background: #28a745; color: white; }
+button:hover { opacity: 0.8; }
 
 #loading-overlay {
     position: fixed; inset: 0; background: #111; z-index: 1000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .spinner { border: 3px solid #333; border-top: 3px solid #4A90E2; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
