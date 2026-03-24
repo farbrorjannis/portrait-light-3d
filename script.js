@@ -1,83 +1,83 @@
 const canvas = document.getElementById('mainCanvas');
 const ctx = canvas.getContext('2d');
-let originalImg = null;
+const statusText = document.getElementById('status-text');
+const overlay = document.getElementById('loading-overlay');
+let img = new Image();
+let currentResults = null;
 let currentMode = 'original';
-let isValueMode = false;
-let faceData = null;
+let valueMode = false;
 
-// Initiera MediaPipe
+// Initiera AI
 const faceMesh = new FaceMesh({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
 faceMesh.setOptions({maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5});
 faceMesh.onResults(results => {
-    faceData = results.multiFaceLandmarks ? results.multiFaceLandmarks[0] : null;
+    currentResults = results.multiFaceLandmarks ? results.multiFaceLandmarks[0] : null;
     draw();
-    document.getElementById('loading-overlay').style.display = 'none';
+    overlay.style.display = 'none';
 });
 
-document.getElementById('fileInput').onchange = e => {
+// Vid uppladdning
+document.getElementById('file-input').onchange = e => {
     const reader = new FileReader();
-    reader.onload = event => {
-        originalImg = new Image();
-        originalImg.onload = () => {
-            canvas.width = originalImg.width;
-            canvas.height = originalImg.height;
-            faceMesh.send({image: originalImg});
+    reader.onload = f => {
+        img.src = f.target.result;
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            statusText.innerText = "Analyzing Face Anatomy...";
+            overlay.style.display = 'flex';
+            faceMesh.send({image: img});
         };
-        originalImg.src = event.target.result;
     };
     reader.readAsDataURL(e.target.files[0]);
 };
 
-function updateLight(mode) {
-    currentMode = mode;
-    document.querySelectorAll('.button-group button').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+function setMode(m) {
+    currentMode = m;
+    document.querySelectorAll('.mode-buttons button').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + m).classList.add('active');
     draw();
 }
 
 function toggleValues() {
-    isValueMode = !isValueMode;
-    document.getElementById('val-toggle').innerText = isValueMode ? "Value Mode: ON" : "Value Mode: OFF";
+    valueMode = !valueMode;
+    document.getElementById('btn-val').innerText = valueMode ? "Values: ON" : "Values: OFF";
     draw();
 }
 
 function draw() {
-    if (!originalImg) return;
+    if (!img.src) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(originalImg, 0, 0);
+    ctx.drawImage(img, 0, 0);
 
-    if (faceData && currentMode !== 'original') {
-        apply3DLightEffect(faceData);
+    if (currentResults && currentMode !== 'original') {
+        apply3DShadow(currentResults);
     }
 
-    if (isValueMode) {
-        applyPosterize();
-    }
+    if (valueMode) applyValueFilter();
 }
 
-function apply3DLightEffect(landmarks) {
+function apply3DShadow(landmarks) {
     const w = canvas.width;
     const h = canvas.height;
-    
-    // Vi använder nästippen som ankare för ljuset
-    const nose = landmarks[1];
-    let grad;
+    const nose = landmarks[1]; // Nästippen i 3D
 
     ctx.globalCompositeOperation = 'multiply';
-    
+    let grad;
+
     if (currentMode === 'side') {
         grad = ctx.createLinearGradient(0, 0, w, 0);
-        grad.addColorStop(0, 'white');
-        grad.addColorStop(1, '#333');
+        grad.addColorStop(0.2, 'white');
+        grad.addColorStop(0.8, '#444');
     } else if (currentMode === 'rembrandt') {
-        // Rembrandt skapar en vinkel som utgår från näsans position
-        grad = ctx.createRadialGradient(nose.x*w - w*0.2, nose.y*h - h*0.2, 0, nose.x*w, nose.y*h, w*1.2);
+        // Skapar en vinkel som följer näsan snett uppifrån
+        grad = ctx.createRadialGradient(nose.x*w - w*0.1, nose.y*h - h*0.2, 0, nose.x*w, nose.y*h, w*1.2);
         grad.addColorStop(0, 'white');
         grad.addColorStop(0.8, '#444');
     } else if (currentMode === 'top') {
         grad = ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, 'white');
-        grad.addColorStop(0.7, '#222');
+        grad.addColorStop(0.6, '#333');
     }
 
     ctx.fillStyle = grad;
@@ -85,20 +85,20 @@ function apply3DLightEffect(landmarks) {
     ctx.globalCompositeOperation = 'source-over';
 }
 
-function applyPosterize() {
-    let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let d = imgData.data;
+function applyValueFilter() {
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
     for (let i = 0; i < d.length; i += 4) {
-        let brightness = 0.2126 * d[i] + 0.7152 * d[i+1] + 0.0722 * d[i+2];
+        let brightness = 0.21 * d[i] + 0.72 * d[i+1] + 0.07 * d[i+2];
         let v = brightness < 64 ? 40 : brightness < 128 ? 110 : brightness < 192 ? 190 : 255;
         d[i] = d[i+1] = d[i+2] = v;
     }
     ctx.putImageData(imgData, 0, 0);
 }
 
-function saveImage() {
-    const link = document.createElement('a');
-    link.download = 'konstlabbet-portrait.png';
-    link.href = canvas.toDataURL();
-    link.click();
+function downloadImage() {
+    const a = document.createElement('a');
+    a.download = 'portrait-sketch.png';
+    a.href = canvas.toDataURL();
+    a.click();
 }
