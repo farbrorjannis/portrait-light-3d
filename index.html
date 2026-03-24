@@ -1,39 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Portrait Lab - Konstlabbet</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
 <div id="loading-overlay">
     <div class="spinner"></div>
     <p id="status-text">Waking up AI...</p>
-</div>
-
-<div class="app-container">
-    <canvas id="mainCanvas"></canvas>
-
-    <div class="toolbar">
-        <div class="mode-buttons">
-            <button onclick="setMode('rembrandt')" id="btn-rembrandt">Rembrandt</button>
-            <button onclick="setMode('side')" id="btn-side">Side</button>
-            <button onclick="setMode('top')" id="btn-top">Top</button>
-            <button onclick="setMode('original')" class="active" id="btn-original">Original</button>
-        </div>
-
-        <div class="tool-buttons">
-            <button class="btn-val" onclick="toggleValues()" id="btn-val">Values: OFF</button>
-            <button class="btn-upload" onclick="document.getElementById('file-input').click()">Upload Portrait</button>
-            <button class="btn-download" onclick="downloadImage()">Download</button>
-        </div>
+    <div style="max-width: 300px; font-size: 12px; color: #666; margin-top: 20px; line-height: 1.4;">
+        <strong>Note:</strong> Loading advanced 3D models may take a moment depending on your connection. 
+        If it stays here, please check your browser security settings (allow WASM) or try using Chrome/Edge.
     </div>
-    <input type="file" id="file-input" hidden accept="image/*">
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
-<script src="script.js"></script>
-</body>
-</html>
