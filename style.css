@@ -1,25 +1,42 @@
+/* Säkerställer att allt får plats på skärmen */
 body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-#canvas-container { flex-grow: 1; width: 100%; position: relative; }
+
+.app-container { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+}
+
+#canvas-container { 
+    flex: 1; /* Tar upp allt utrymme som blir över */
+    width: 100%; 
+    position: relative; 
+}
 
 .ui-panel { 
     background: #1a1a1a; 
-    padding: 20px; 
+    padding: 15px 20px; 
     border-top: 2px solid #333;
-    z-index: 10;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
 }
 
 .controls-row { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    display: flex; 
+    flex-wrap: wrap;
     gap: 20px; 
     max-width: 1000px; 
     margin: 0 auto 15px;
 }
 
-.control-group { display: flex; flex-direction: column; gap: 5px; }
-label { color: #888; font-size: 12px; text-transform: uppercase; }
-input[type=range] { width: 100%; cursor: pointer; }
+.control-group { 
+    flex: 1;
+    min-width: 150px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+}
+
+label { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 
 .button-row { 
     display: flex; 
@@ -36,8 +53,10 @@ button {
     font-weight: bold; 
     cursor: pointer; 
     color: white;
+    transition: background 0.2s;
 }
 
 .btn-main { background: #4A90E2; }
 .btn-sub { background: #444; }
 .btn-save { background: #28a745; }
+button:hover { filter: brightness(1.2); }
