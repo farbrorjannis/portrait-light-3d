@@ -2,48 +2,44 @@ let scene, camera, renderer, head, light, controls;
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x111111);
-
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight * 0.7), 0.1, 1000);
     camera.position.set(0, 0, 5);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Gör det möjligt att rotera och zooma huvudet med musen/fingret
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Laddar en professionell huvudmodell med tydliga anatomiska plan
     const loader = new THREE.OBJLoader();
+    // Vi använder WaltHead som är en stabil och detaljerad modell
     loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/walt/WaltHead.obj', (obj) => {
         head = obj;
+        head.scale.set(0.04, 0.04, 0.04);
+        head.position.y = -1.5;
+        
         head.traverse((child) => {
             if (child.isMesh) {
                 child.material = new THREE.MeshStandardMaterial({
                     color: 0xcccccc,
-                    flatShading: true, // Detta tvingar fram "Asaro-looken"
+                    flatShading: true,
                     transparent: true,
-                    opacity: 0.7
+                    opacity: 0.8
                 });
             }
         });
         scene.add(head);
-        updateScene();
-        document.getElementById('loading-overlay').style.display = 'none';
     });
 
-    // Lyssnare för alla reglage
-    ['lightAngle', 'lightHeight', 'opacity', 'modelScale'].forEach(id => {
-        document.getElementById(id).addEventListener('input', updateScene);
-    });
-
+    document.getElementById('lightAngle').addEventListener('input', updateScene);
+    document.getElementById('lightHeight').addEventListener('input', updateScene);
+    document.getElementById('opacity').addEventListener('input', updateScene);
+    
     window.addEventListener('resize', onResize);
     animate();
 }
@@ -54,8 +50,6 @@ function updateScene() {
     light.position.set(Math.cos(angle) * 7, h, Math.sin(angle) * 7);
 
     if (head) {
-        const s = document.getElementById('modelScale').value / 1000;
-        head.scale.set(s, s, s);
         const opac = document.getElementById('opacity').value / 100;
         head.traverse(child => { if (child.isMesh) child.material.opacity = opac; });
     }
