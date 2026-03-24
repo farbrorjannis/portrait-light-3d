@@ -3,50 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Asaro Portrait Lab | Konstlabbet</title>
+    <title>Real Asaro Head | Konstlabbet</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <p>Loading Professional 3D Model...</p>
+    <p>Loading Real Asaro Model...</p>
 </div>
-
 <div class="app-container">
     <div id="canvas-container"></div>
-
     <div class="ui-overlay">
         <div class="controls-grid">
-            <div class="group">
-                <label>Light Direction</label>
-                <input type="range" id="lightAngle" min="0" max="360" value="45">
-            </div>
-            <div class="group">
-                <label>Light Height</label>
-                <input type="range" id="lightHeight" min="-5" max="10" value="5">
-            </div>
-            <div class="group">
-                <label>Model Opacity (Genomskinlighet)</label>
-                <input type="range" id="opacity" min="0" max="100" value="70">
-            </div>
-            <div class="group">
-                <label>Head Rotation</label>
-                <input type="range" id="headRotation" min="-180" max="180" value="0">
-            </div>
+            <div class="group"><label>Light Direction</label><input type="range" id="lightAngle" min="0" max="360" value="45"></div>
+            <div class="group"><label>Light Height</label><input type="range" id="lightHeight" min="-5" max="10" value="5"></div>
+            <div class="group"><label>Model Opacity</label><input type="range" id="opacity" min="0" max="100" value="70"></div>
+            <div class="group"><label>Model Size</label><input type="range" id="modelScale" min="1" max="100" value="40"></div>
         </div>
-
         <div class="button-row">
-            <button onclick="triggerUpload()" class="btn-main">1. Upload Photo</button>
-            <button onclick="setRembrandt()" class="btn-sub">Rembrandt Light</button>
-            <button onclick="downloadImage()" class="btn-save">Save Study</button>
+            <button onclick="triggerUpload()" class="btn-main">Upload Photo</button>
+            <button onclick="setRembrandt()" class="btn-sub">Rembrandt</button>
+            <button onclick="downloadImage()" class="btn-save">Save Image</button>
         </div>
     </div>
     <input type="file" id="file-input" hidden accept="image/*">
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>
